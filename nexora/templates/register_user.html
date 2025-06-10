@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register User</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="form-container">
+      <h2>Register New User</h2>
+      <form action="/admin/register_user" method="POST">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Role:</label>
+              <select name="role" required>
+                <option value="">--Select Role--</option>
+                <option value="student">Student</option>
+                <option value="professor">Professor</option>
+                <option value="admin">Admin</option>
+              </select>
+          </div>
+
+          <div class="form-group">
+            <label>Email:</label>
+            <select id="email-dropdown" style="display:none;"></select>
+            <input id="email-input" type="email" style="display:block;">
+          </div>
+          
+          <div id="info-section" style="display:none;">
+            <p><strong>Name:</strong> <span id="full-name"></span></p>
+            <p><strong>Address:</strong> <span id="address"></span></p>
+            <p><strong>Bus Route:</strong> <span id="bus-route"></span></p>
+            <p><strong>Dietary Preference:</strong> <span id="diet"></span></p>
+          </div>
+
+          <div class="form-group">
+            <label>Password:</label>
+            <input type="password" name="password" required />
+          </div>
+  
+          <div class="form-group">
+            <label>Confirm Password:</label>
+            <input type="password" name="confirm_password" required />
+          </div>
+        </div>
+  
+        <div class="form-submit">
+          <button type="submit">Register User</button>
+        </div>
+      </form>
+    </div>
+
+<script id="students-data" type="application/json">
+  {{ students | tojson }}
+</script>
+<script id="professors-data" type="application/json">
+  {{ professors | tojson }}
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const roleSelect = document.querySelector('[name="role"]');
+  const emailDropdown = document.getElementById('email-dropdown');
+  const emailInput = document.getElementById('email-input');
+  const infoSection = document.getElementById('info-section');
+  const fullName = document.getElementById('full-name');
+  const address = document.getElementById('address');
+  const busRoute = document.getElementById('bus-route');
+  const diet = document.getElementById('diet');
+
+  const studentEmails = JSON.parse(document.getElementById('students-data').textContent);
+  const professorEmails = JSON.parse(document.getElementById('professors-data').textContent);
+
+  roleSelect.addEventListener('change', () => {
+    const role = roleSelect.value;
+    infoSection.style.display = 'none';
+
+    emailDropdown.removeAttribute('required');
+    emailDropdown.removeAttribute('name');
+    emailInput.removeAttribute('required');
+    emailInput.removeAttribute('name');
+
+    if (role === 'student' || role === 'professor') {
+      emailInput.style.display = 'none';
+      emailDropdown.style.display = 'block';
+      emailDropdown.setAttribute('required', '');
+      emailDropdown.setAttribute('name', 'email');
+
+      const source = role === 'student' ? studentEmails : professorEmails;
+
+      emailDropdown.innerHTML = '';
+
+      if (source.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'No unregistered users available';
+        opt.disabled = true;
+        opt.selected = true;
+        emailDropdown.appendChild(opt);
+        emailDropdown.disabled = true;
+      } else {
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = '--Select Email--';
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        emailDropdown.appendChild(placeholder);
+        emailDropdown.disabled = false;
+
+        source.forEach(email => {
+          const opt = document.createElement('option');
+          opt.value = email;
+          opt.textContent = email;
+          emailDropdown.appendChild(opt);
+        });
+      }
+
+      emailDropdown.onchange = () => {
+        const selectedEmail = emailDropdown.value;
+        if (selectedEmail) {
+          fetch(`/admin/get_user_details?role=${role}&email=${selectedEmail}`)
+            .then(res => res.json())
+            .then(data => {
+              fullName.textContent = data.name || '';
+              address.textContent = data.address || '';
+              busRoute.textContent = data.bus_route || '';
+              diet.textContent = data.diet || '';
+              infoSection.style.display = 'block';
+            });
+        } else {
+          infoSection.style.display = 'none';
+        }
+      };
+
+    } else if (role === 'admin') {
+      emailDropdown.style.display = 'none';
+      emailInput.style.display = 'block';
+      emailInput.setAttribute('required', '');
+      emailInput.setAttribute('name', 'email');
+      infoSection.style.display = 'none';
+    }
+  });
+});
+</script>
+
+
+  </body>
+  
+</html>

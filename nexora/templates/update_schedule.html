@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Update Weekly Schedule</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  
+  <style>
+    body{
+        color: aliceblue;
+    }
+    th{
+        color:black;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Update Weekly Schedule</h1>
+
+  <form action="/admin/update_schedule" method="POST">
+    <label for="department">Select Department:</label>
+    <select name="department" id="department" required>
+      <option value="">-- Select --</option>
+      {% for dept in departments %}
+        <option value="{{ dept.DepartmentID }}">{{ dept.DepartmentName }}</option>
+      {% endfor %}
+    </select>
+
+    <div class="tabs">
+      <button type="button" onclick="showDay('monday')">Monday</button>
+      <button type="button" onclick="showDay('tuesday')">Tuesday</button>
+      <button type="button" onclick="showDay('wednesday')">Wednesday</button>
+      <button type="button" onclick="showDay('thursday')">Thursday</button>
+      <button type="button" onclick="showDay('friday')">Friday</button>
+      <button type="button" onclick="showDay('saturday')">Saturday</button>
+      <button type="button" onclick="showDay('sunday')">Sunday</button>
+    </div>
+
+    {% for day, slots in time_slots_by_day.items() %}
+    <div id="{{ day }}" class="day-tab {% if loop.first %}active{% endif %}">
+      <h2>{{ day.capitalize() }}</h2>
+      <table>
+        <tr>
+          <th>Lecture Hall</th>
+          {% for slot in slots %}
+            <th>{{ slot.StartTime }}–{{ slot.EndTime }}</th>
+          {% endfor %}
+        </tr>
+        {% for hall in lecture_halls %}
+        <tr>
+          <td>{{ hall.RoomNumber }}</td>
+          {% for slot in slots %}
+          {% set key = day ~ '|' ~ hall.RoomNumber ~ '|' ~ slot.TimeSlotID %}
+          {% set existing = existing_schedule[key] if key in existing_schedule else None %}
+
+            <td>
+              <div class="input-group">
+                <select name="{{ day }}[{{ hall.RoomNumber }}][{{ slot.TimeSlotID }}][batch]">
+                  <option disabled selected>Batch</option>
+                </select>
+
+                <select name="{{ day }}[{{ hall.RoomNumber }}][{{ slot.TimeSlotID }}][subject]">
+                  <option disabled selected>Course</option>
+                </select>
+
+                <select name="{{ day }}[{{ hall.RoomNumber }}][{{ slot.TimeSlotID }}][lecturer]">
+                  <option disabled selected>Lecturer</option>
+                </select>
+              </div>
+            </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% endfor %}
+
+    <div class="form-submit">
+      <button type="submit">Submit Weekly Schedule</button>
+    </div>
+  </form>
+
+<script id="existing-schedule" type="application/json">
+  {{ existing_schedule | tojson }}
+</script>
+
+<script id="available-batches" type="application/json">
+  {{ batches | tojson }}
+</script>
+
+<script>
+function showDay(dayId) {
+  document.querySelectorAll('.day-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  document.getElementById(dayId).classList.add('active');
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const departmentSelect = document.getElementById('department');
+  const batchDropdowns = document.querySelectorAll('select[name$="[batch]"]');
+  const courseDropdowns = document.querySelectorAll('select[name$="[subject]"]');
+  const lecturerDropdowns = document.querySelectorAll('select[name$="[lecturer]"]');
+  const batches = JSON.parse(document.getElementById('available-batches').textContent);
+  let existingSchedule = JSON.parse(document.getElementById('existing-schedule').textContent);
+
+  departmentSelect.addEventListener('change', function () {
+    const departmentId = departmentSelect.value;
+    if (!departmentId) return;
+
+    Promise.all([
+      fetch(`/admin/get_department_data/${departmentId}`).then(res => res.json()),
+      fetch(`/admin/get_department_schedule/${departmentId}`).then(res => res.json())
+    ])
+    .then(([departmentData, scheduleData]) => {
+      existingSchedule = scheduleData;
+      populateSelects(departmentData);
+    })
+    .catch(error => {
+      console.error('Error fetching department data or schedule:', error);
+    });
+  });
+
+  function populateSelects(data) {
+    const courses = data.courses;
+    const professors = data.professors;
+
+    document.querySelectorAll('td').forEach(cell => {
+      const batchSelect = cell.querySelector('select[name$="[batch]"]');
+      const courseSelect = cell.querySelector('select[name$="[subject]"]');
+      const lecturerSelect = cell.querySelector('select[name$="[lecturer]"]');
+
+      if (!batchSelect || !courseSelect || !lecturerSelect) return;
+
+      const match = batchSelect.name.match(/\[(.*?)\]\[(.*?)\]\[(.*?)\]/);
+      if (!match) return;
+
+      const day = match[1];
+      const room = match[2];
+      const slot = match[3];
+      const key = `${day}|${room}|${slot}`;
+      const existing = existingSchedule[key];
+
+      let batchOptions = `<option disabled ${!existing?.Batch ? 'selected' : ''}>Batch</option>`;
+      batches.forEach(batch => {
+        const selected = existing?.Batch === batch ? 'selected' : '';
+        batchOptions += `<option value="${batch}" ${selected}>${batch}</option>`;
+      });
+      batchSelect.innerHTML = batchOptions;
+
+      let courseOptions = `<option disabled ${!existing?.CourseID ? 'selected' : ''}>Course</option>`;
+      courses.forEach(course => {
+        const selected = existing?.CourseID == course.CourseID ? 'selected' : '';
+        courseOptions += `<option value="${course.CourseID}" ${selected}>${course.CourseCode} - ${course.CourseName}</option>`;
+      });
+      courseSelect.innerHTML = courseOptions;
+
+      let lecturerOptions = `<option disabled ${!existing?.ProfessorID ? 'selected' : ''}>Lecturer</option>`;
+      professors.forEach(prof => {
+        const selected = existing?.ProfessorID == prof.ProfessorID ? 'selected' : '';
+        lecturerOptions += `<option value="${prof.ProfessorID}" ${selected}>${prof.FirstName} ${prof.LastName}</option>`;
+      });
+      lecturerSelect.innerHTML = lecturerOptions;
+
+      if (existing && existing.Batch && existing.CourseID && existing.ProfessorID) {
+        cell.classList.add('highlighted');
+      } else {
+        cell.classList.remove('highlighted');
+      }
+    });
+  }
+
+  if (departmentSelect.value) {
+    departmentSelect.dispatchEvent(new Event('change'));
+  }
+});
+
+</script>
+
+</body>
+</html>

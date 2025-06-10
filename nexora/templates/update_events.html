@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Update Events</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#121212] text-white min-h-screen p-6">
+  <h1 class="text-3xl font-bold mb-6 text-center"> Update Events</h1>
+  {% if request.args.get('success') %}
+    <div class="bg-green-600 text-white p-3 rounded mb-4 text-center font-semibold">
+      ✅ Event saved successfully!
+    </div>
+  {% endif %}
+
+  <form action="/admin/update_events" method="POST" class="max-w-xl mx-auto bg-[#1e1e1e] p-6 rounded-xl shadow-md space-y-4">
+    
+    <div>
+      <label for="event_name" class="block mb-1 font-medium">Event Name</label>
+      <input type="text" id="event_name" name="event_name" required class="w-full p-2 rounded bg-gray-800 text-white border border-gray-600" />
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label for="event_date" class="block mb-1 font-medium">Date</label>
+        <input type="date" id="event_date" name="event_date" required class="w-full p-2 rounded bg-gray-800 text-white border border-gray-600" />
+      </div>
+      <div>
+        <label for="event_time" class="block mb-1 font-medium">Time</label>
+        <input type="time" id="event_time" name="event_time" required class="w-full p-2 rounded bg-gray-800 text-white border border-gray-600" />
+      </div>
+    </div>
+
+    <div>
+      <label for="venue" class="block mb-1 font-medium">Venue</label>
+      <input type="text" id="venue" name="venue" required class="w-full p-2 rounded bg-gray-800 text-white border border-gray-600" />
+    </div>
+
+    <div>
+      <label for="hosted_by" class="block mb-1 font-medium">Hosted By</label>
+      <input type="text" id="hosted_by" name="hosted_by" required class="w-full p-2 rounded bg-gray-800 text-white border border-gray-600" />
+    </div>
+
+    <div>
+      <label for="description" class="block mb-1 font-medium">Description</label>
+      <textarea id="description" name="description" rows="4" required class="w-full p-2 rounded bg-gray-800 text-white border border-gray-600"></textarea>
+    </div>
+
+    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold">Save Event</button>
+  </form>
+</body>
+</html>

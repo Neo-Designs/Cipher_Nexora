@@ -1,0 +1,7 @@
+DECLARE @Today VARCHAR(10) = DATENAME(WEEKDAY, GETDATE());
+
+SELECT ci.ItemName, ci.Category, c.Name AS CafeteriaName
+FROM DailyMenus dm
+JOIN MenuItems ci ON dm.ItemID = ci.ItemID
+JOIN Cafeterias c ON dm.CafeteriaID = c.CafeteriaID
+WHERE dm.AvailableDay = @Today OR dm.AvailableDay = 'All';

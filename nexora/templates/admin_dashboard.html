@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  <header class="top-bar">
+    <div class="logo">Nexora Campus Copilot</div>
+  </header>
+  <div class="dashboard">
+    <h1 class="dashboard-title">Admin Dashboard</h1>
+    <div class="admin-links">
+      <a href="{{ url_for('register_user') }}">Register User</a>
+      <a href="{{ url_for('update_schedule') }}">Update Schedules</a>
+      <a href="{{ url_for('update_menu') }}">Update Menu</a>
+      <a href="{{ url_for('update_bus') }}">Update Bus Routes</a>
+      <a href="{{ url_for('update_events') }}"> Update Events</a>
+      <a href="/logout"> Log Out</a>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexora Campus Copilot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="top-bar">
+        <div class="logo">Nexora Campus Copilot</div>
+        <div class="auth-buttons">
+            <button id="darkModeToggle" class="icon-btn" title="Toggle Dark Mode" >
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJWo4-4CFXXcd-ydZ81wxpaqIWBW2XxkJgM8DwylIeI-01iHurJSDjSoGI4jja77qI6CA&usqp=CAU" alt="Dark Mode" width="50" height="50" style="border-radius: 50%; object-fit: cover;">
+            </button>
+    
+            {% if not user_name %}
+                <button onclick="window.location.href='/login'" class="auth-btn">Log In</button>
+            {% else %}
+                <span class="welcome-msg" >Welcome, {{ user_name }}</span>
+                <a href="/logout" class="auth-btn">Log Out</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main id="main-content">
+        <div class="intro">
+            <h1>How can I help you today?</h1>
+            <div class="input-wrapper">
+                <textarea id="user-input" placeholder="Type your message..."></textarea>
+                <div class="input-icons">
+                    <button class="icon-btn" id="micBtn">🎤</button>
+                    <button class="icon-btn" id="send-btn">➤</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-container hidden">
+            <div id="chat-box" class="chat-box"></div>
+            <div id="typing-indicator" class="typing-indicator hidden">Nexora is typing...</div>
+            <div class="input-area">
+                <textarea id="chat-input" placeholder="Type your message..."></textarea>
+                <div class="input-icons">
+                    <button class="icon-btn" id="voice-btn">🎤</button>
+                    <button class="icon-btn" id="chat-send-btn">➤</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
