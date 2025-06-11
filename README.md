@@ -52,7 +52,6 @@ Will also be uploaded into repo under file demo&screenshots. demo video link -> 
 Setup Instructions
 
 1. Clone the Repository
-
 git clone https://github.com/Neo-Designs/Cipher_Nexora.git
 cd Cipher_Nexora/nexora
 
@@ -70,3 +69,7 @@ use python app.py to run application on http://localhost:5000. then open http://
 ##Team
 - Neola Udeshi Silva : groq AI connection, voice input feature, UI/UX design, admin dashboard, enforcing restrictions for guest users
 - Panchalee Hewage: database connection, RAG architecture, user login, AI fallback prompts
+
+## Submission
+Developed for Nexora 1.0 - Round 2
+Submission Date : 12th June 2025
