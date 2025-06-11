@@ -51,19 +51,24 @@ Will also be uploaded into repo under file demo&screenshots. demo video link -> 
 # Setup Instructions
 Setup Instructions
 
-1. Clone the Repository
+1. set up .env file
+pull files from git repo
+generate a Groq API Key and replace API key in .env file (GROQ_API_KEY= your key)
+push changes into git repo
+
+2. Clone the Repository
 git clone https://github.com/Neo-Designs/Cipher_Nexora.git
 cd Cipher_Nexora/nexora
 
-2. Install Dependencies
+3. Install Dependencies
 pip install (python packages metioned in prerequisits above, and any other pip install packages required by laptop)
 
-3. Set up Database 
+4. Set up Database 
 Restore the database using the .bak file.
 Make sure that SQL EXPRESS Server is running locally and the database NovaCoreUniversity exists.
 Update db_connect.py if server or driver differs
 
-4. Run application
+5. Run application
 use python app.py to run application on http://localhost:5000. then open http://localhost:5000 on google browser to view nexora.
 
 ##Team
